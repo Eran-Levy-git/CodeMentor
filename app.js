@@ -43,11 +43,3 @@ app.get('/code-block/:id', (req, res) => {
     res.status(404).send('Code block not found.');
     }
     });
-    
-io.on('connection', (socket) => {
-    // Handle real-time code updates
-  });
-  
-  http.listen(port, () => {
-    console.log(`Server started on port ${port}`);
-  });
