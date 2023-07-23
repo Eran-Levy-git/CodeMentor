@@ -1,45 +1,70 @@
 const express = require('express');
 const app = express();
+const http = require('http').Server(app);
+const io = require('socket.io')(http);
 const port = process.env.PORT || 3000;
 
-// Code block data
+// Sample code block data (replace this with your actual data)
 const codeBlocks = [
-  { id: 1, title: 'Async case', code: 'async function fetchData() {\n  // Async code here\n}' },
-  { id: 2, title: 'Promises', code: 'function fetchData() {\n  return new Promise((resolve, reject) => {\n    // Promise code here\n  });\n}' },
-  { id: 3, title: 'Callbacks', code: 'function fetchData(callback) {\n  // Callback code here\n}' },
-  { id: 4, title: 'Event handling', code: 'document.addEventListener("click", (event) => {\n  // Event handling code here\n});' }
+    { id: 1, title: 'Async case', code: 'async function fetchData() {\n  // Async code here\n}', solution: 'async function fetchData() {\n  return fetch("https://api.example.com/data");\n}' },
+    { id: 2, title: 'Promises', code: 'function fetchData() {\n  return new Promise((resolve, reject) => {\n    // Promise code here\n  });\n}', solution: 'function fetchData() {\n  return new Promise((resolve, reject) => {\n    resolve("Data loaded successfully");\n  });\n}' },
+    { id: 3, title: 'Callbacks', code: 'function fetchData(callback) {\n  // Callback code here\n}', solution: 'function fetchData(callback) {\n  setTimeout(() => {\n    callback("Data loaded successfully");\n  }, 2000);\n}' },
+    { id: 4, title: 'Event handling', code: 'document.addEventListener("click", (event) => {\n  // Event handling code here\n});', solution: 'document.addEventListener("click", (event) => {\n  console.log("Clicked!");\n});' }
 ];
 
-// Set up the view engine (EJS)
 app.set('view engine', 'ejs');
 
-// Set up the server
-app.listen(port, () => {
-  console.log(`Server started on port ${port}`);
-});
-
-// Implement routes
 app.use(express.static('public'));
 
-// Route for the lobby page (index.html)
 app.get('/', (req, res) => {
-  res.sendFile(__dirname + '/public/index.html');
+    res.sendFile(__dirname + '/public/index.html');
 });
 
-// Route for the code block page (code-block.html)
 app.get('/code-block/:id', (req, res) => {
-    // Get the code block ID from the URL parameter
     const codeBlockId = parseInt(req.params.id, 10);
-
-
-    // Find the code block in the sample data
     const selectedCodeBlock = codeBlocks.find((block) => block.id === codeBlockId);
-    
-    // If the code block is found, render the code-block.ejs template with the code block data
+
     if (selectedCodeBlock) {
-    res.render('code-block', { codeBlock: selectedCodeBlock });
+        res.render('code-block', { codeBlock: selectedCodeBlock });
     } else {
-    // If the code block is not found, display an error message
-    res.status(404).send('Code block not found.');
+        res.status(404).send('Code block not found.');
     }
+});
+
+io.on('connection', (socket) => {
+    let isMentor = false;
+
+    // Handle the first user (mentor) who opens the code block page
+    socket.on('set-mentor', () => {
+        if (!isMentor) {
+            isMentor = true;
+            socket.emit('is-mentor', true);
+        }
     });
+
+    // Emit code block data to new students
+    socket.on('join-as-student', () => {
+        if (!isMentor) {
+            socket.emit('code-update', codeBlocks[0].code);
+        }
+    });
+
+    // Handle code updates from students
+    socket.on('code-update', (code) => {
+        if (!isMentor) {
+            socket.broadcast.emit('code-update', code);
+            // Bonus feature: Check if student's code matches the solution
+            const currentCodeBlockId = parseInt(socket.handshake.headers.referer.split('/').pop(), 10);
+            const currentCodeBlock = codeBlocks.find((block) => block.id === currentCodeBlockId);
+            if (currentCodeBlock && code === currentCodeBlock.solution) {
+                socket.emit('correct-solution');
+            } else {
+                socket.emit('incorrect-solution');
+            }
+        }
+    });
+});
+
+http.listen(port, () => {
+    console.log(`Server started on port ${port}`);
+});

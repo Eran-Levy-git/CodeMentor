@@ -1,10 +1,13 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Code Block Details</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
   <!-- Add link to Highlight.js CSS -->
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css">
 </head>
+
 <body>
   <h1>Code Block Details</h1>
   <div id="code-block">
@@ -42,6 +45,33 @@
 
     // Call the function to fetch code block details when the page loads
     fetchCodeBlock();
-  </script>
-</body>
-</html>
+
+    // Socket.IO connection
+    const socket = io();
+
+    // Emit the code block ID when the student updates the code
+    function onCodeUpdate(code) {
+      socket.emit('code-update', code);
+    }
+
+    // Listen for code updates from the mentor and update the code
+    socket.on('code-update', (code) => {
+      const codeBlock = document.getElementById('code-block');
+      if (codeBlock && !document.activeElement.classList.contains('editable')) {
+        codeBlock.innerText = code;
+        hljs.highlightBlock(codeBlock);
+
+        // Bonus feature: Check if student's code matches the solution
+        const solution = data.solution; // Replace 'data.solution' with the actual solution property from your code block object
+        if (code === solution) {
+          displaySmileyFace();
+        } else {
+          removeSmileyFace();
+        }
+      }
+    });
+
+    // Bonus feature: Display smiley face for correct solution
+    function displaySmileyFace() {
+      const smileyFace = document.createElement
+    }
