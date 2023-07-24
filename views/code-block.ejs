@@ -3,6 +3,12 @@
 
 <head>
   <title>Code Block Details</title>
+<!-- Add the Highlight.js library -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+
+<!-- Add the desired CSS theme for syntax highlighting -->
+<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css" rel="stylesheet">
+
 </head>
 
 <body>
@@ -11,11 +17,17 @@
     <h2>
       <%= codeBlock.title %>
     </h2>
-    <textarea class="python" id="codeArea" rows="10" cols="80">
+    <pre>
+    <code id="codeArea" rows="10" cols="80" contenteditable="true">
       <%= codeBlock.code %>
-  </textarea>
+    </code>
+  </pre>
 
-    <!-- Add Socket.IO client library -->
+  <script>
+    hljs.highlightElement(document.getElementById("codeArea"), { language: "python" });
+  </script>
+  
+  <!-- Add Socket.IO client library -->
     <script src="/socket.io/socket.io.js"></script>
 
     <script>
@@ -23,7 +35,7 @@
       // If isFirst, make the codeArea readonly
       if (<%= isFirst %>) {
         const codeArea = document.getElementById('codeArea');
-        codeArea.setAttribute('readonly', '');
+        codeArea.setAttribute('contenteditable', false);
       }
 
       // Socket.IO connection

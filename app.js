@@ -35,7 +35,7 @@ app.get('/code-block/:id', (req, res) => {
 });
 
 io.on('connection', (socket) => {
-    console.log('a user connected');
+    // console.log('a user connected');
 
     // Listen for code changes from clients and broadcast to others
     socket.on('code-change', (data) => {
