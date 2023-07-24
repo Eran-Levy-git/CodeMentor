@@ -41,6 +41,12 @@
         // Update the code in the first user's screen
         const codeArea = document.getElementById('codeArea');
         codeArea.value = data;
+        var solution = <%- JSON.stringify(codeBlock.solution) %>;
+        if (data == solution  )
+         {
+          var bigSmiley = '\uD83D\uDE04'; // Unicode for smiling face emoji
+          codeArea.value = data+'/n       '+bigSmiley;
+        }
       });
 
 
