@@ -46,17 +46,17 @@
       // Listen for changes to the code
       codeArea.addEventListener('input', (event) => {
   // Send the code to the second user
-  console.log(codeArea.textContent)
   socket.emit('code-change', codeArea.textContent);
 });
 
 
       socket.on('code-change', (data) => {
-        console.log('code-change in block');
-
         // Update the code in the first user's screen
         const codeArea = document.getElementById('codeArea');
-        codeArea.value = data;
+        codeArea.textContent = data;
+
+        hljs.highlightElement(document.getElementById("codeArea"), { language: "python" });
+        
         var solution = <%- JSON.stringify(codeBlock.solution) %>;
         if (data == solution  )
          {

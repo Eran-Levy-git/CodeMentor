@@ -36,10 +36,7 @@ app.get('/code-block/:id', (req, res) => {
 
 
 io.on('connection', (socket) => {
-    console.log('a user connected');
-
     socket.on('code-change', (data) => {
-        console.log('code-change in app');
         io.emit('code-change', data);
     });
 });
