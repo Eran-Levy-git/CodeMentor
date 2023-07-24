@@ -27,30 +27,25 @@ app.get('/code-block/:id', (req, res) => {
     const codeBlockId = parseInt(req.params.id, 10);
     const selectedCodeBlock = codeBlocks.find((block) => block.id === codeBlockId);
     if (selectedCodeBlock) {
-        res.render('code-block', { codeBlock: selectedCodeBlock , isFirst: isFirst});
+        res.render('code-block', { codeBlock: selectedCodeBlock, isFirst: isFirst });
         isFirst = false
     } else {
         res.status(404).send('Code block not found.');
     }
 });
 
-io.on('connection', (socket) => {
-    // console.log('a user connected');
 
-    // Listen for code changes from clients and broadcast to others
-    socket.on('code-change', (data) => {
-        // Broadcast the updated code to all connected clients (including the sender)
-        socket.emit('codeUpdate', data);
-    });
-});
 io.on('connection', (socket) => {
+    console.log('a user connected');
+
     socket.on('code-change', (data) => {
+        console.log('code-change in app');
         io.emit('code-change', data);
     });
 });
 
 
-  const ip = '192.168.1.160';
+const ip = '192.168.1.160';
 server.listen(3000, ip, () => {
     console.log(`listening on ${ip}:${3000}`);
-  });
+});
