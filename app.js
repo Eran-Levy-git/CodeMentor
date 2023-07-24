@@ -1,8 +1,9 @@
 const express = require('express');
 const app = express();
-const http = require('http').Server(app);
-const io = require('socket.io')(http);
-const port = process.env.PORT || 3000;
+const http = require('http');
+const server = http.createServer(app);
+const { Server } = require("socket.io");
+const io = new Server(server);
 
 // Sample code block data (replace this with your actual data)
 const codeBlocks = [
@@ -20,51 +21,36 @@ app.get('/', (req, res) => {
     res.sendFile(__dirname + '/public/index.html');
 });
 
+let isFirst = true;
+
 app.get('/code-block/:id', (req, res) => {
     const codeBlockId = parseInt(req.params.id, 10);
     const selectedCodeBlock = codeBlocks.find((block) => block.id === codeBlockId);
-
     if (selectedCodeBlock) {
-        res.render('code-block', { codeBlock: selectedCodeBlock });
+        res.render('code-block', { codeBlock: selectedCodeBlock , isFirst: isFirst});
+        isFirst = false
     } else {
         res.status(404).send('Code block not found.');
     }
 });
 
 io.on('connection', (socket) => {
-    let isMentor = false;
+    console.log('a user connected');
 
-    // Handle the first user (mentor) who opens the code block page
-    socket.on('set-mentor', () => {
-        if (!isMentor) {
-            isMentor = true;
-            socket.emit('is-mentor', true);
-        }
+    // Listen for code changes from clients and broadcast to others
+    socket.on('code-change', (data) => {
+        // Broadcast the updated code to all connected clients (including the sender)
+        socket.emit('codeUpdate', data);
     });
-
-    // Emit code block data to new students
-    socket.on('join-as-student', () => {
-        if (!isMentor) {
-            socket.emit('code-update', codeBlocks[0].code);
-        }
-    });
-
-    // Handle code updates from students
-    socket.on('code-update', (code) => {
-        if (!isMentor) {
-            socket.broadcast.emit('code-update', code);
-            // Bonus feature: Check if student's code matches the solution
-            const currentCodeBlockId = parseInt(socket.handshake.headers.referer.split('/').pop(), 10);
-            const currentCodeBlock = codeBlocks.find((block) => block.id === currentCodeBlockId);
-            if (currentCodeBlock && code === currentCodeBlock.solution) {
-                socket.emit('correct-solution');
-            } else {
-                socket.emit('incorrect-solution');
-            }
-        }
+});
+io.on('connection', (socket) => {
+    socket.on('code-change', (data) => {
+        io.emit('code-change', data);
     });
 });
 
-http.listen(port, () => {
-    console.log(`Server started on port ${port}`);
-});
+
+  const ip = '192.168.1.160';
+server.listen(3000, ip, () => {
+    console.log(`listening on ${ip}:${3000}`);
+  });

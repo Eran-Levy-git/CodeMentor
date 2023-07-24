@@ -1,26 +1,52 @@
 <!DOCTYPE html>
 <html>
+
 <head>
   <title>Code Block Details</title>
-  <!-- Add link to Highlight.js CSS -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css">
 </head>
+
 <body>
   <h1>Code Block Details</h1>
   <div id="code-block">
-    <h2><%= codeBlock.title %></h2>
-    <pre><code><%= codeBlock.code %></code></pre>
-  </div>
+    <h2>
+      <%= codeBlock.title %>
+    </h2>
+    <textarea class="python" id="codeArea" rows="10" cols="80">
+      <%= codeBlock.code %>
+  </textarea>
 
-  <!-- Add link to Highlight.js JavaScript -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
-  <script>
-    // Apply syntax highlighting
-    document.addEventListener('DOMContentLoaded', () => {
-      document.querySelectorAll('pre code').forEach((block) => {
-        hljs.highlightBlock(block);
+    <!-- Add Socket.IO client library -->
+    <script src="/socket.io/socket.io.js"></script>
+
+    <script>
+
+      // If isFirst, make the codeArea readonly
+      if (<%= isFirst %>) {
+        const codeArea = document.getElementById('codeArea');
+        codeArea.setAttribute('readonly', '');
+      }
+
+      // Socket.IO connection
+      const socket = io.connect();
+
+      codeArea = document.getElementById('codeArea');
+
+      // Listen for changes to the code
+      codeArea.addEventListener('input', (event) => {
+        // Send the code to the second user
+        socket.emit('code-change', codeArea.value);
       });
-    });
-  </script>
+
+      socket.on('code-change', (data) => {
+        // Update the code in the first user's screen
+        const codeArea = document.getElementById('codeArea');
+        codeArea.value = data;
+      });
+
+
+    </script>
+
+  </div>
 </body>
+
 </html>
