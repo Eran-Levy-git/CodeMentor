@@ -1,23 +1,24 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>Choose Code Block</title>
-    <!-- Add Socket.IO client library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.3.1/socket.io.js"></script>
+    <title>Choose Code Block</title>
 </head>
 <body>
-  <h1>Choose code block</h1>
-  <ul>
-    <li><a href="/code-block/1">Async case</a></li>
-    <li><a href="/code-block/2">Promises</a></li>
-    <li><a href="/code-block/3">Callbacks</a></li>
-    <li><a href="/code-block/4">Event handling</a></li>
-  </ul>
+    <h1>Choose code block</h1>
+    <ul>
+        <li><a href="/code-block/1">Async case</a></li>
+        <li><a href="/code-block/2">Promises</a></li>
+        <li><a href="/code-block/3">Callbacks</a></li>
+        <li><a href="/code-block/4">Event handling</a></li>
+    </ul>
 
-  <script>
-    // Socket.IO connection
-    const socket = io();
-  </script>
-  
+    <script>
+        // WebSocket connection
+        const socket = new WebSocket('ws://' + window.location.hostname + ':3000');
+
+        socket.addEventListener('open', () => {
+            console.log('WebSocket connection established');
+        });
+    </script>
 </body>
 </html>

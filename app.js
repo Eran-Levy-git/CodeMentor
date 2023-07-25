@@ -2,8 +2,7 @@ const express = require('express');
 const app = express();
 const http = require('http');
 const server = http.createServer(app);
-const { Server } = require("socket.io");
-const io = new Server(server);
+const WebSocket = require('ws');
 
 // Sample code block data (replace this with your actual data)
 const codeBlocks = [
@@ -14,7 +13,6 @@ const codeBlocks = [
 ];
 
 app.set('view engine', 'ejs');
-
 app.use(express.static('public'));
 
 app.get('/', (req, res) => {
@@ -28,23 +26,36 @@ app.get('/code-block/:id', (req, res) => {
     const selectedCodeBlock = codeBlocks.find((block) => block.id === codeBlockId);
     if (selectedCodeBlock) {
         res.render('code-block', { codeBlock: selectedCodeBlock, isFirst: isFirst });
-        isFirst = false
+        isFirst = false;
     } else {
         res.status(404).send('Code block not found.');
     }
 });
 
+const wss = new WebSocket.Server({ server });
 
-io.on('connection', (socket) => {
-    socket.on('code-change', (data) => {
-        io.emit('code-change', data);
+
+wss.on('connection', (ws) => {
+    ws.on('message', data =>  {
+        const parsed = JSON.parse(data)
+        console.log(parsed);
+        // Broadcast the received message to all connected clients
+        wss.clients.forEach((client) => {
+            if (client.readyState === WebSocket.OPEN) {
+                client.send(JSON.stringify(parsed));
+            }
+        });
     });
 });
 
-// Use PORT provided in environment or default to 3000
-const port = process.env.PORT || 3000;
 
-// Listen on `port` and 0.0.0.0
-app.listen(port, "0.0.0.0", function () {
-  // ...
-});
+server.listen(3000, () => {
+    console.log(`Server started on port 3000`);
+  });
+  
+// // Use PORT provided in environment or default to 3000
+// const port = process.env.PORT || 3000;
+
+// server.listen(port, "0.0.0.0", function () {
+//     // ...
+// });

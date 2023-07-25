@@ -27,44 +27,40 @@
       hljs.highlightElement(document.getElementById("codeArea"), { language: "javascript" });
     </script>
 
-    <!-- Add Socket.IO client library -->
-    <script src="/socket.io/socket.io.js"></script>
-
     <script>
-
       // If isFirst, make the codeArea readonly
       if (<%= isFirst %>) {
         const codeArea = document.getElementById('codeArea');
         codeArea.setAttribute('contenteditable', false);
       }
 
-      // Socket.IO connection
-      const socket = io.connect();
+      // WebSocket connection
+      const socket = new WebSocket('ws://' + window.location.host);
 
       codeArea = document.getElementById('codeArea');
 
       // Listen for changes to the code
       codeArea.addEventListener('input', (event) => {
+        console.log('input');
         const selection = document.getSelection();
         const caretPosition = selection.anchorOffset;
         // Send to the second user
-        socket.emit('code-change', { textContent: codeArea.textContent, caretPosition: caretPosition });
+        socket.send(JSON.stringify({ textContent: codeArea.textContent, caretPosition: caretPosition }));
       });
 
-      socket.on('code-change', (data) => {
+      socket.addEventListener('message', (event) => {
+        console.log('code change');
+        const parsed = JSON.parse(event.data);
         // Update the code in the first user's screen
         const codeArea = document.getElementById('codeArea');
-        codeArea.textContent = data.textContent;  
+        codeArea.textContent = parsed.textContent;
         var solution = <%- JSON.stringify(codeBlock.solution) %>;
-        if (data.textContent == solution) {
+        if (parsed.textContent == solution) {
           alert('\uD83D\uDE03'); // Unicode for smiling face emoji
         }
-        hljs.highlightElement(codeArea, { language: "javascript" });      
+        hljs.highlightElement(codeArea, { language: "javascript" });
       });
-
-
     </script>
-
   </div>
 </body>
 
