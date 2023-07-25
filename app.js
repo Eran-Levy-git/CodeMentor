@@ -42,7 +42,7 @@ io.on('connection', (socket) => {
 });
 
 
-const ip = '192.168.1.160';
+const ip = 'https://codementor-production.up.railway.app';
 server.listen(3000, ip, () => {
     console.log(`listening on ${ip}:${3000}`);
 });
