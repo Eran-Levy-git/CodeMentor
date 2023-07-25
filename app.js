@@ -38,12 +38,17 @@ const wss = new WebSocket.Server({ server });
 wss.on('connection', (ws) => {
     ws.on('message', data =>  {
         const parsed = JSON.parse(data)
+        if (parsed == 'Mentor'){
+            isFirst = true;
+        }
+        else{
         // Broadcast the received message to all connected clients
         wss.clients.forEach((client) => {
             if (client.readyState === WebSocket.OPEN) {
                 client.send(JSON.stringify(parsed));
             }
         });
+        }
     });
 });
 
