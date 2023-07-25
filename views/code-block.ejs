@@ -41,15 +41,14 @@
 
       // Listen for changes to the code
       codeArea.addEventListener('input', (event) => {
-        console.log('input');
         const selection = document.getSelection();
         const caretPosition = selection.anchorOffset;
         // Send to the second user
         socket.send(JSON.stringify({ textContent: codeArea.textContent, caretPosition: caretPosition }));
       });
 
+      // code change message from server
       socket.addEventListener('message', (event) => {
-        console.log('code change');
         const parsed = JSON.parse(event.data);
         // Update the code in the first user's screen
         const codeArea = document.getElementById('codeArea');
