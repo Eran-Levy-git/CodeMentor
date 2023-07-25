@@ -3,11 +3,11 @@
 
 <head>
   <title>Code Block Details</title>
-<!-- Add the Highlight.js library -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+  <!-- Add the Highlight.js library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
 
-<!-- Add the desired CSS theme for syntax highlighting -->
-<link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css" rel="stylesheet">
+  <!-- Add the desired CSS theme for syntax highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css" rel="stylesheet">
 
 </head>
 
@@ -23,11 +23,11 @@
     </code>
   </pre>
 
-  <script>
-    hljs.highlightElement(document.getElementById("codeArea"), { language: "python" });
-  </script>
-  
-  <!-- Add Socket.IO client library -->
+    <script>
+      hljs.highlightElement(document.getElementById("codeArea"), { language: "javascript" });
+    </script>
+
+    <!-- Add Socket.IO client library -->
     <script src="/socket.io/socket.io.js"></script>
 
     <script>
@@ -45,24 +45,21 @@
 
       // Listen for changes to the code
       codeArea.addEventListener('input', (event) => {
-  // Send the code to the second user
-  socket.emit('code-change', codeArea.textContent);
-});
-
+        const selection = document.getSelection();
+        const caretPosition = selection.anchorOffset;
+        // Send to the second user
+        socket.emit('code-change', { textContent: codeArea.textContent, caretPosition: caretPosition });
+      });
 
       socket.on('code-change', (data) => {
         // Update the code in the first user's screen
         const codeArea = document.getElementById('codeArea');
-        codeArea.textContent = data;
-
-        hljs.highlightElement(document.getElementById("codeArea"), { language: "python" });
-        
+        codeArea.textContent = data.textContent;  
         var solution = <%- JSON.stringify(codeBlock.solution) %>;
-        if (data == solution  )
-         {
-          var bigSmiley = '\uD83D\uDE04'; // Unicode for smiling face emoji
-          codeArea.value = data+'/n       '+bigSmiley;
+        if (data.textContent == solution) {
+          alert('\uD83D\uDE03'); // Unicode for smiling face emoji
         }
+        hljs.highlightElement(codeArea, { language: "javascript" });      
       });
 
 
