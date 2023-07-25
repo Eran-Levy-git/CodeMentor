@@ -49,13 +49,13 @@ wss.on('connection', (ws) => {
 });
 
 
-server.listen(3000, () => {
-    console.log(`Server started on port 3000`);
-  });
+// server.listen(3000, () => {
+//     console.log(`Server started on port 3000`);
+//   });
   
-// // Use PORT provided in environment or default to 3000
-// const port = process.env.PORT || 3000;
+// Use PORT provided in environment or default to 3000
+const port = process.env.PORT || 3000;
 
-// server.listen(port, "0.0.0.0", function () {
-//     // ...
-// });
+server.listen(port, "0.0.0.0", function () {
+    // ...
+});
