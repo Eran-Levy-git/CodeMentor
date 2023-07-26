@@ -12,6 +12,8 @@ const codeBlocks = [
     { id: 4, title: 'Event handling', code: 'document.addEventListener("click", (event) => {\n  // Event handling code here\n});', solution: 'document.addEventListener("click", (event) => {\n  console.log("Clicked!");\n});' }
 ];
 
+app.use('/css', express.static('css'));
+
 app.set('view engine', 'ejs');
 app.use(express.static('public'));
 
