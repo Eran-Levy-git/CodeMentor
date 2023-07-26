@@ -1,11 +1,9 @@
 <!DOCTYPE html>
 <html>
-
 <head>
     <title>Choose Code Block</title>
     <link rel="stylesheet" href="/css/index.css">
 </head>
-
 <body>
     <h1>Choose code block</h1>
     <button id="myButton">Mentor, please press here before entering the code block</button>
@@ -23,11 +21,13 @@
         const button = document.getElementById('myButton');
 
         button.addEventListener('click', () => {
-            // Change the boolean in app.js
-            socket.send(JSON.stringify('Mentor'))
+          // Change the boolean in app.js
+          socket.send(JSON.stringify('Mentor'))
         });
 
+        socket.addEventListener('open', () => {
+            console.log('WebSocket connection established');
+        });
     </script>
 </body>
-
 </html>
