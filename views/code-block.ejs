@@ -49,11 +49,6 @@
         codeArea.setAttribute('contenteditable', false);
       }
 
-      // const button = document.getElementById('Highlight');
-      // button.addEventListener('click', () => {
-      //   hljs.highlightElement(codeArea, { language: "javascript" });
-      // });
-
       // WebSocket connection
       const socket = new WebSocket('ws://' + window.location.host);
 
@@ -79,29 +74,40 @@
         return { offset, nodeNumber };
       }
 
+      let typingTimer;
+      const doneTypingInterval = 2000; // Adjust the time interval in milliseconds (3 second in this example)
+
+      function doneTyping() {
+        hljs.highlightElement(codeArea, { language: "javascript" });
+      }
+
+      function resetTypingTimer() {
+        clearTimeout(typingTimer);
+        typingTimer = setTimeout(doneTyping, doneTypingInterval);
+      }
 
       // Listen for changes to the code
       codeArea.addEventListener('input', (event) => {
         let { offset, nodeNumber } = getoffsetAndNodeNumber();
-        // const selection = document.getSelection();
-        // const offset = selection.anchorOffset;
         // Send to the second user
         socket.send(JSON.stringify({ innerText: codeArea.innerText, offset: offset, nodeNumber: nodeNumber }));
+        resetTypingTimer();
       });
 
       function setOffsetWithinRange(textNode, offset) {
         if (offset > textNode.length) {
-            const nextSibling = textNode.nextSibling;
-            if (nextSibling && nextSibling.nodeType === Node.TEXT_NODE) {
-                // Move to the next sibling node and adjust the offset
-                return setOffsetWithinRange(nextSibling, offset - textNode.length);
-            } else {
-                // If there is no next sibling text node, set the offset to the end of the current node
-                return textNode.length;
-            }
+          const nextSibling = textNode.nextSibling;
+          if (nextSibling && nextSibling.nodeType === Node.TEXT_NODE) {
+            // Move to the next sibling node and adjust the offset
+            return setOffsetWithinRange(nextSibling, offset - textNode.length);
+          } else {
+            // If there is no next sibling text node, set the offset to the end of the current node
+            return textNode.length;
+          }
         }
         return offset;
-    }
+      }
+
       // code change message from server
       socket.addEventListener('message', (event) => {
         const parsed = JSON.parse(event.data);
@@ -112,24 +118,27 @@
         if (parsed.innerText == solution) {
           alert('\uD83D\uDE03'); // Unicode for smiling face emoji
         }
+        if (<%= isFirst %>) {
         hljs.highlightElement(codeArea, { language: "javascript" });
-        if (!<%= isFirst %>) {
-          console.log(parsed.offset);
-          console.log(parsed.nodeNumber)
-          console.log(parsed.innerText)
-            // Set the caret position if it's within the valid range
-            if (parsed.nodeNumber >= 0 && parsed.nodeNumber < codeArea.childNodes.length) {
-                const textNode = codeArea.childNodes[parsed.nodeNumber];
-                const offset = setOffsetWithinRange(textNode, parsed.offset);
-                const selection = document.getSelection();
-                selection.removeAllRanges(); // Clear any existing selection
-                const range = document.createRange();
-                range.setStart(textNode, offset);
-                selection.addRange(range);
-            }
-        }
-      });
+      }else {
+        console.log(parsed.offset);
+        console.log(parsed.nodeNumber)
+        console.log(parsed.innerText)
 
+        const textNode = codeArea.childNodes[parsed.nodeNumber];
+
+        // Ensure the offset is within the valid range
+        const offset = setOffsetWithinRange(textNode, parsed.offset);
+
+        const selection = document.getSelection();
+        selection.removeAllRanges(); // Clear any existing selection
+        const range = document.createRange();
+        range.setStart(textNode, offset);
+        selection.addRange(range);
+      }
+    
+      });
+    
     </script>
   </div>
 </body>
