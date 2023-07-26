@@ -54,7 +54,7 @@
       }
 
       // WebSocket connection
-      const socket = new WebSocket('ws://' + window.location.host);
+      const socket = new WebSocket('wss://' + window.location.host);
 
       codeArea = document.getElementById('codeArea');
 
@@ -74,7 +74,7 @@
       codeArea.addEventListener('input', (event) => {
         const selection = document.getSelection();
         const caretPosition = selection.anchorOffset;
-        // Send to the second user
+        // Send to the other users
         socket.send(JSON.stringify({ innerText: codeArea.innerText, caretPosition: caretPosition }));
         resetTypingTimer();
       });
@@ -87,13 +87,13 @@
         var solution = <%- JSON.stringify(codeBlock.solution) %>;
         if (parsed.innerText == solution) {
           document.getElementById('big-smiley').style.display = 'block';
-        } else{
+        } else {
           document.getElementById('big-smiley').style.display = 'none';
         }
         if (<%= isFirst %>) {
-          codeArea.innerText = parsed.innerText;
-          hljs.highlightElement(codeArea, { language: "javascript" });
-        }
+        codeArea.innerText = parsed.innerText;
+        hljs.highlightElement(codeArea, { language: "javascript" });
+      }
       });
     </script>
   </div>

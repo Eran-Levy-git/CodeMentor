@@ -4,7 +4,7 @@ const http = require('http');
 const server = http.createServer(app);
 const WebSocket = require('ws');
 
-// Sample code block data (replace this with your actual data)
+// Sample code block data
 const codeBlocks = [
     { id: 1, title: 'Async case', code: 'async function fetchData() {\n  // Async code here\n}', solution: 'e=mc^2' },
     { id: 2, title: 'Promises', code: 'function fetchData() {\n  return new Promise((resolve, reject) => {\n    // Promise code here\n  });\n}', solution: 'function fetchData() {\n  return new Promise((resolve, reject) => {\n    resolve("Data loaded successfully");\n  });\n}' },
@@ -38,30 +38,25 @@ const wss = new WebSocket.Server({ server });
 
 
 wss.on('connection', (ws) => {
-    ws.on('message', data =>  {
+    ws.on('message', data => {
         const parsed = JSON.parse(data)
-        if (parsed == 'Mentor'){
+        if (parsed == 'Mentor') {
             isFirst = true;
         }
-        else{
-        // Broadcast the received message to all connected clients
-        wss.clients.forEach((client) => {
-            if (client.readyState === WebSocket.OPEN) {
-                client.send(JSON.stringify(parsed));
-            }
-        });
+        else {
+            // Broadcast the received message to all connected clients
+            wss.clients.forEach((client) => {
+                if (client.readyState === WebSocket.OPEN) {
+                    client.send(JSON.stringify(parsed));
+                }
+            });
         }
     });
 });
 
+// Use PORT provided in environment or default to 3000
+const port = process.env.PORT || 3000;
 
-server.listen(3000, () => {
-    console.log(`Server started on port 3000`);
-  });
-  
-// // Use PORT provided in environment or default to 3000
-// const port = process.env.PORT || 3000;
-
-// server.listen(port, "0.0.0.0", function () {
-//     // ...
-// });
+server.listen(port, "0.0.0.0", function () {
+    // ...
+});
