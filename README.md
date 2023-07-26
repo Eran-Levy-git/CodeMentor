@@ -1,4 +1,4 @@
-# Moveo coding task - Code Mentorship
+# Coding task - Code Mentorship
 
 This project aims to create an online coding web application that allows a mentor (Tom) to share a piece of JavaScript code with a student (Josh) in real-time.
 
