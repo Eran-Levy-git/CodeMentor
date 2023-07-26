@@ -77,6 +77,16 @@
         if (parsed.innerText == solution) {
           alert('\uD83D\uDE03'); // Unicode for smiling face emoji
         }
+        if (!<%= isFirst %>) {
+          console.log(parsed.caretPosition);
+          // console.log(parsed.innerText)
+          // // Set the caret position
+          // const selection = document.getSelection();
+          // selection.removeAllRanges(); // Clear any existing selection
+          // const range = document.createRange();
+          // range.setStart(codeArea.firstChild, parsed.caretPosition);
+          // selection.addRange(range);
+        }
         // hljs.highlightElement(codeArea, { language: "javascript" });
       });
     </script>
