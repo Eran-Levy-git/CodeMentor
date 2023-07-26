@@ -21,6 +21,7 @@
         const button = document.getElementById('myButton');
 
         button.addEventListener('click', () => {
+        console.log('Mentor clicked');
           // Change the boolean in app.js
           socket.send(JSON.stringify('Mentor'))
         });
