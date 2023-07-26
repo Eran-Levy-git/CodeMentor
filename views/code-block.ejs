@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html>
 
+<div id="Welcome Mentor" style.display="none">Hello Mentor</div>
+<div id="Welcome Student" style.display="none">Hello Student</div>
+
 <head>
   <title>Code Block Details</title>
   <!-- Add the Highlight.js library -->
@@ -10,6 +13,16 @@
   <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css" rel="stylesheet">
 
 </head>
+
+<script>
+  if (<%= isFirst %>) {
+    document.getElementById('Welcome Mentor').style.display = 'block';
+    document.getElementById('Welcome Student').style.display = 'none';
+  } else {
+    document.getElementById('Welcome Student').style.display = 'block';
+    document.getElementById('Welcome Mentor').style.display = 'none';
+  }
+</script>
 
 <body>
   <h1>Code Block Details</h1>
@@ -23,6 +36,8 @@
     </code>
   </pre>
 
+  <button id="Highlight">Please press to highlight code block</button>
+
     <script>
       hljs.highlightElement(document.getElementById("codeArea"), { language: "javascript" });
     </script>
@@ -34,8 +49,13 @@
         codeArea.setAttribute('contenteditable', false);
       }
 
+      const button = document.getElementById('Highlight');
+        button.addEventListener('click', () => {
+          hljs.highlightElement(codeArea, { language: "javascript" });
+        }); 
+
       // WebSocket connection
-      const socket = new WebSocket('wss://' + window.location.host);
+      const socket = new WebSocket('ws://' + window.location.host);
 
       codeArea = document.getElementById('codeArea');
 
@@ -44,7 +64,7 @@
         const selection = document.getSelection();
         const caretPosition = selection.anchorOffset;
         // Send to the second user
-        socket.send(JSON.stringify({ textContent: codeArea.textContent, caretPosition: caretPosition }));
+        socket.send(JSON.stringify({ innerText: codeArea.innerText, caretPosition: caretPosition }));
       });
 
       // code change message from server
@@ -52,12 +72,12 @@
         const parsed = JSON.parse(event.data);
         // Update the code in the first user's screen
         const codeArea = document.getElementById('codeArea');
-        codeArea.textContent = parsed.textContent;
+        codeArea.innerText = parsed.innerText;
         var solution = <%- JSON.stringify(codeBlock.solution) %>;
-        if (parsed.textContent == solution) {
+        if (parsed.innerText == solution) {
           alert('\uD83D\uDE03'); // Unicode for smiling face emoji
         }
-        hljs.highlightElement(codeArea, { language: "javascript" });
+        // hljs.highlightElement(codeArea, { language: "javascript" });
       });
     </script>
   </div>
