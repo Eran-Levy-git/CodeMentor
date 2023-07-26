@@ -36,7 +36,7 @@
     </code>
   </pre>
 
-  <button id="Highlight">Please press to highlight code block</button>
+    <!-- <button id="Highlight">Please press to highlight code block</button> -->
 
     <script>
       hljs.highlightElement(document.getElementById("codeArea"), { language: "javascript" });
@@ -49,24 +49,59 @@
         codeArea.setAttribute('contenteditable', false);
       }
 
-      const button = document.getElementById('Highlight');
-        button.addEventListener('click', () => {
-          hljs.highlightElement(codeArea, { language: "javascript" });
-        }); 
+      // const button = document.getElementById('Highlight');
+      // button.addEventListener('click', () => {
+      //   hljs.highlightElement(codeArea, { language: "javascript" });
+      // });
 
       // WebSocket connection
       const socket = new WebSocket('ws://' + window.location.host);
 
       codeArea = document.getElementById('codeArea');
 
+      // Utility function to get the caret position (offset) and node number
+      function getoffsetAndNodeNumber() {
+        const selection = document.getSelection();
+        const node = selection.anchorNode;
+        let offset = selection.anchorOffset;
+        let nodeNumber = 0;
+
+        if (node && node.nodeType === Node.TEXT_NODE) {
+          nodeNumber = [...codeArea.childNodes].indexOf(node);
+          for (let i = 0; i < nodeNumber; i++) {
+            const sibling = codeArea.childNodes[i];
+            if (sibling.nodeType === Node.TEXT_NODE) {
+              offset += sibling.textContent.length;
+            }
+          }
+        }
+
+        return { offset, nodeNumber };
+      }
+
+
       // Listen for changes to the code
       codeArea.addEventListener('input', (event) => {
-        const selection = document.getSelection();
-        const caretPosition = selection.anchorOffset;
+        let { offset, nodeNumber } = getoffsetAndNodeNumber();
+        // const selection = document.getSelection();
+        // const offset = selection.anchorOffset;
         // Send to the second user
-        socket.send(JSON.stringify({ innerText: codeArea.innerText, caretPosition: caretPosition }));
+        socket.send(JSON.stringify({ innerText: codeArea.innerText, offset: offset, nodeNumber: nodeNumber }));
       });
 
+      function setOffsetWithinRange(textNode, offset) {
+        if (offset > textNode.length) {
+            const nextSibling = textNode.nextSibling;
+            if (nextSibling && nextSibling.nodeType === Node.TEXT_NODE) {
+                // Move to the next sibling node and adjust the offset
+                return setOffsetWithinRange(nextSibling, offset - textNode.length);
+            } else {
+                // If there is no next sibling text node, set the offset to the end of the current node
+                return textNode.length;
+            }
+        }
+        return offset;
+    }
       // code change message from server
       socket.addEventListener('message', (event) => {
         const parsed = JSON.parse(event.data);
@@ -77,18 +112,24 @@
         if (parsed.innerText == solution) {
           alert('\uD83D\uDE03'); // Unicode for smiling face emoji
         }
+        hljs.highlightElement(codeArea, { language: "javascript" });
         if (!<%= isFirst %>) {
-          console.log(parsed.caretPosition);
-          // console.log(parsed.innerText)
-          // // Set the caret position
-          // const selection = document.getSelection();
-          // selection.removeAllRanges(); // Clear any existing selection
-          // const range = document.createRange();
-          // range.setStart(codeArea.firstChild, parsed.caretPosition);
-          // selection.addRange(range);
+          console.log(parsed.offset);
+          console.log(parsed.nodeNumber)
+          console.log(parsed.innerText)
+            // Set the caret position if it's within the valid range
+            if (parsed.nodeNumber >= 0 && parsed.nodeNumber < codeArea.childNodes.length) {
+                const textNode = codeArea.childNodes[parsed.nodeNumber];
+                const offset = setOffsetWithinRange(textNode, parsed.offset);
+                const selection = document.getSelection();
+                selection.removeAllRanges(); // Clear any existing selection
+                const range = document.createRange();
+                range.setStart(textNode, offset);
+                selection.addRange(range);
+            }
         }
-        // hljs.highlightElement(codeArea, { language: "javascript" });
       });
+
     </script>
   </div>
 </body>
