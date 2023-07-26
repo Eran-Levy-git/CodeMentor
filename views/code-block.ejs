@@ -1,18 +1,8 @@
 <!DOCTYPE html>
 <html>
 
-<div id="Welcome Mentor" style.display="none">Hello Mentor</div>
-<div id="Welcome Student" style.display="none">Hello Student</div>
-
-<head>
-  <title>Code Block Details</title>
-  <!-- Add the Highlight.js library -->
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
-
-  <!-- Add the desired CSS theme for syntax highlighting -->
-  <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css" rel="stylesheet">
-
-</head>
+<div id="Welcome Mentor" >Hello Mentor</div>
+<div id="Welcome Student" >Hello Student</div>
 
 <script>
   if (<%= isFirst %>) {
@@ -23,6 +13,24 @@
     document.getElementById('Welcome Mentor').style.display = 'none';
   }
 </script>
+
+<head>
+  <title>Code Block Details</title>
+  <!-- Add the Highlight.js library -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/highlight.min.js"></script>
+
+  <!-- Add the desired CSS theme for syntax highlighting -->
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css" rel="stylesheet">
+
+  <style>
+    /* Your CSS rules go here */
+    .big-smiley {
+      font-size: 48px; 
+      text-align: center; 
+    }
+  </style>
+
+</head>
 
 <body>
   <h1>Code Block Details</h1>
@@ -36,11 +44,15 @@
     </code>
   </pre>
 
-    <!-- <button id="Highlight">Please press to highlight code block</button> -->
-
     <script>
       hljs.highlightElement(document.getElementById("codeArea"), { language: "javascript" });
     </script>
+
+  <p id="big-smiley" class="big-smiley">&#x1F604;</p>
+
+  <script>  
+  document.getElementById('big-smiley').style.display = 'none';
+  </script>
 
     <script>
       // If isFirst, make the codeArea readonly
@@ -54,29 +66,8 @@
 
       codeArea = document.getElementById('codeArea');
 
-      // Utility function to get the caret position (offset) and node number
-      function getoffsetAndNodeNumber() {
-        const selection = document.getSelection();
-        const node = selection.anchorNode;
-        let offset = selection.anchorOffset;
-        let nodeNumber = 0;
-
-        if (node && node.nodeType === Node.TEXT_NODE) {
-          nodeNumber = [...codeArea.childNodes].indexOf(node);
-          for (let i = 0; i < nodeNumber; i++) {
-            const sibling = codeArea.childNodes[i];
-            if (sibling.nodeType === Node.TEXT_NODE) {
-              offset += sibling.textContent.length;
-            }
-          }
-        }
-
-        return { offset, nodeNumber };
-      }
-
       let typingTimer;
-      const doneTypingInterval = 2000; // Adjust the time interval in milliseconds (3 second in this example)
-
+      const doneTypingInterval = 3000; // Adjust the time interval in milliseconds (3 second in this example)
       function doneTyping() {
         hljs.highlightElement(codeArea, { language: "javascript" });
       }
@@ -88,57 +79,29 @@
 
       // Listen for changes to the code
       codeArea.addEventListener('input', (event) => {
-        let { offset, nodeNumber } = getoffsetAndNodeNumber();
+        const selection = document.getSelection();
+        const caretPosition = selection.anchorOffset;
         // Send to the second user
-        socket.send(JSON.stringify({ innerText: codeArea.innerText, offset: offset, nodeNumber: nodeNumber }));
+        socket.send(JSON.stringify({ innerText: codeArea.innerText, caretPosition: caretPosition }));
         resetTypingTimer();
       });
-
-      function setOffsetWithinRange(textNode, offset) {
-        if (offset > textNode.length) {
-          const nextSibling = textNode.nextSibling;
-          if (nextSibling && nextSibling.nodeType === Node.TEXT_NODE) {
-            // Move to the next sibling node and adjust the offset
-            return setOffsetWithinRange(nextSibling, offset - textNode.length);
-          } else {
-            // If there is no next sibling text node, set the offset to the end of the current node
-            return textNode.length;
-          }
-        }
-        return offset;
-      }
 
       // code change message from server
       socket.addEventListener('message', (event) => {
         const parsed = JSON.parse(event.data);
         // Update the code in the first user's screen
         const codeArea = document.getElementById('codeArea');
-        codeArea.innerText = parsed.innerText;
         var solution = <%- JSON.stringify(codeBlock.solution) %>;
         if (parsed.innerText == solution) {
-          alert('\uD83D\uDE03'); // Unicode for smiling face emoji
+          document.getElementById('big-smiley').style.display = 'block';
+        } else{
+          document.getElementById('big-smiley').style.display = 'none';
         }
         if (<%= isFirst %>) {
-        hljs.highlightElement(codeArea, { language: "javascript" });
-      }else {
-        console.log(parsed.offset);
-        console.log(parsed.nodeNumber)
-        console.log(parsed.innerText)
-
-        const textNode = codeArea.childNodes[parsed.nodeNumber];
-
-        // Ensure the offset is within the valid range
-        const offset = setOffsetWithinRange(textNode, parsed.offset);
-
-        const selection = document.getSelection();
-        selection.removeAllRanges(); // Clear any existing selection
-        const range = document.createRange();
-        range.setStart(textNode, offset);
-        selection.addRange(range);
-      }
-    
+          codeArea.innerText = parsed.innerText
+          hljs.highlightElement(codeArea, { language: "javascript" });
+        }
       });
-    
     </script>
   </div>
 </body>
