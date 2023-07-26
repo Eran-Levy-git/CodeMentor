@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html>
 
-<div id="Welcome Mentor" >Hello Mentor</div>
-<div id="Welcome Student" >Hello Student</div>
+<div id="Welcome Mentor">Hello Mentor</div>
+<div id="Welcome Student">Hello Student</div>
 
 <script>
   if (<%= isFirst %>) {
@@ -22,11 +22,37 @@
   <!-- Add the desired CSS theme for syntax highlighting -->
   <link href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/10.7.2/styles/default.min.css" rel="stylesheet">
 
+  <!-- Inline CSS for the big smiley -->
   <style>
     /* Your CSS rules go here */
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.6;
+      margin: 0;
+      padding: 20px;
+    }
+    h1, h2 {
+      text-align: center;
+      margin-bottom: 20px;
+    }
+    #code-block {
+      max-width: 800px;
+      margin: 0 auto;
+      background-color: #f9f9f9;
+      border: 1px solid #ddd;
+      padding: 20px;
+    }
+    pre {
+      margin: 0;
+    }
+    code {
+      font-family: "Courier New", monospace;
+    }
     .big-smiley {
-      font-size: 48px; 
-      text-align: center; 
+      font-size: 48px;
+      text-align: center;
+      display: none;
+      margin-top: 20px;
     }
   </style>
 
@@ -48,11 +74,8 @@
       hljs.highlightElement(document.getElementById("codeArea"), { language: "javascript" });
     </script>
 
-  <p id="big-smiley" class="big-smiley">&#x1F604;</p>
-
-  <script>  
-  document.getElementById('big-smiley').style.display = 'none';
-  </script>
+    <!-- Add the big smiley with the "big-smiley" class -->
+    <p id="big-smiley" class="big-smiley">&#x1F604;</p>
 
     <script>
       // If isFirst, make the codeArea readonly
@@ -67,7 +90,8 @@
       codeArea = document.getElementById('codeArea');
 
       let typingTimer;
-      const doneTypingInterval = 3000; // Adjust the time interval in milliseconds (3 second in this example)
+      const doneTypingInterval = 3000; // Adjust the time interval in milliseconds (3 seconds in this example)
+
       function doneTyping() {
         hljs.highlightElement(codeArea, { language: "javascript" });
       }
@@ -98,7 +122,7 @@
           document.getElementById('big-smiley').style.display = 'none';
         }
         if (<%= isFirst %>) {
-          codeArea.innerText = parsed.innerText
+          codeArea.innerText = parsed.innerText;
           hljs.highlightElement(codeArea, { language: "javascript" });
         }
       });
