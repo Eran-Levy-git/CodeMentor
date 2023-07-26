@@ -40,11 +40,10 @@ const wss = new WebSocket.Server({ server });
 wss.on('connection', (ws) => {
     ws.on('message', data => {
         const parsed = JSON.parse(data)
-        console.log(isFirst)
         console.log(parsed)
         if (parsed == 'Mentor') {
             isFirst = true;
-            console.log('it changed')
+            console.log('isFirst changed to true')
         }
         else {
             // Broadcast the received message to all connected clients

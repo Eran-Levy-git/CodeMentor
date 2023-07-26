@@ -72,10 +72,8 @@
 
       // Listen for changes to the code
       codeArea.addEventListener('input', (event) => {
-        const selection = document.getSelection();
-        const caretPosition = selection.anchorOffset;
         // Send to the other users
-        socket.send(JSON.stringify({ innerText: codeArea.innerText, caretPosition: caretPosition }));
+        socket.send(JSON.stringify({ innerText: codeArea.innerText }));
         resetTypingTimer();
       });
 
